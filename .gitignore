@@ -3,6 +3,17 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# virtualenv
+[Bb]in
+[Ii]nclude
+[Ll]ib
+[Ll]ib64
+[Ll]ocal
+[Ss]cripts
+[Ss]hare
+pyvenv.cfg
+.venv
+
 # C extensions
 *.so
 
