@@ -21,16 +21,20 @@ INFLUX_USER = ""
 INFLUX_PASSWORD = ""
 INFLUX_DB = "amipo_capteurs"
 
-# measurement: "nom", tags: map, time: "2009-11-10T23:00:00Z", fields: map
-def publishData(measurement, tags, time, fields):
-    influxClient = InfluxDBClient(INFLUX_HOSTNAME, INFLUX_PORT, INFLUX_USER, INFLUX_PASSWORD, INFLUX_DB)
+def buildInfluxDbJsonBody(measurement, tags, time, fields):
     jsonBody = [{
         "measurement": measurement,
         "tags": tags,
         "time": time,
         "fields": fields
     }]
-    print("jsonBody: ", jsonBody)
+    #print("jsonBody: ", jsonBody)
+    return jsonBody
+
+# measurement: "nom", tags: map, time: "2009-11-10T23:00:00Z", fields: map
+def publishData(measurement, tags, time, fields):
+    influxClient = InfluxDBClient(INFLUX_HOSTNAME, INFLUX_PORT, INFLUX_USER, INFLUX_PASSWORD, INFLUX_DB)
+    jsonBody = buildInfluxDbJsonBody(measurement, tags, time, fields)
     influxClient.write_points(jsonBody)
     influxClient.close()
 
@@ -66,20 +70,24 @@ def on_message(client, userdata, msg):
     print("Received MQTT message on topic: [", msg.topic, "] with payload: [", str(msg.payload), "], raw message: [", msg, "]")
     processMessage(msg.topic, msg.payload)
 
-mqttClient = mqtt.Client("amipo_daemon", clean_session=False, userdata=None)
-mqttClient.on_connect = on_connect
-mqttClient.on_message = on_message
-mqttClient.on_log = on_log
+def main():
+    mqttClient = mqtt.Client("amipo_daemon", clean_session=False, userdata=None)
+    mqttClient.on_connect = on_connect
+    mqttClient.on_message = on_message
+    mqttClient.on_log = on_log
 
-#mqttClient.connect(MQTT_HOSTNAME, MQTT_PORT, 60)
-print("infos:", MQTT_HOSTNAME, MQTT_PORT)
-mqttClient.connect(MQTT_HOSTNAME, MQTT_PORT)
+    #mqttClient.connect(MQTT_HOSTNAME, MQTT_PORT, 60)
+    print("infos:", MQTT_HOSTNAME, MQTT_PORT)
+    mqttClient.connect(MQTT_HOSTNAME, MQTT_PORT)
 
-# Blocking call that processes network traffic, dispatches callbacks and
-# handles reconnecting.
-# Other loop*() functions are available that give a threaded interface and a
-# manual interface.
-try:
-    mqttClient.loop_forever()
-except KeyboardInterrupt:
-    sys.exit(0)
+    # Blocking call that processes network traffic, dispatches callbacks and
+    # handles reconnecting.
+    # Other loop*() functions are available that give a threaded interface and a
+    # manual interface.
+    try:
+        mqttClient.loop_forever()
+    except KeyboardInterrupt:
+        sys.exit(0)
+
+if __name__ == '__main__':
+    main()

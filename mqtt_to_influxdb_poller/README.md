@@ -8,3 +8,5 @@ Use source bin/activate to enter the virtual environment.
 Use pip install -r requirements.txt to install required libraries.
 Use deactivate to leave the virtual environment.
 
+## Tests
+To launch tests : py.test src/
